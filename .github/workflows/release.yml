@@ -19,3 +19,5 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         extra_files: LICENSE README.md
+        sha256sum: false
+        md5sum: false
