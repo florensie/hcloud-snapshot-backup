@@ -9,4 +9,5 @@ It will keep 7 backups per server (configurable) and automatically delete old on
 2. Use cron to run the program periodically at your desired schedule
 
 ## To Do
+- Create backups asynchronously
 - Automatically calculate if running snapshots will actually be cheaper and enable/disable the official backup feature
