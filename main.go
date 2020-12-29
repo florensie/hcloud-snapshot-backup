@@ -15,6 +15,7 @@ var client *hcloud.Client
 var keepAmount int
 
 func main() {
+	// Load config and initialize
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("error loading .env file: %s", err)
@@ -26,6 +27,7 @@ func main() {
 	}
 	client = hcloud.NewClient(hcloud.WithToken(os.Getenv("HCLOUD_TOKEN")))
 
+	// Loop servers and run backup for each
 	servers, err := client.Server.All(context.Background())
 	if err != nil {
 		log.Fatalf("error retrieving servers: %s\n", err)
@@ -37,6 +39,7 @@ func main() {
 			continue
 		}
 
+		// TODO: create backups async
 		createBackup(server)
 		pruneBackups(server)
 	}
@@ -60,6 +63,7 @@ func createBackup(server *hcloud.Server) {
 }
 
 func pruneBackups(server *hcloud.Server) {
+	// Get all images with `autobackup` label, sorted by creation date (most recent first)
 	images, err := client.Image.AllWithOpts(context.Background(), hcloud.ImageListOpts{
 		ListOpts: hcloud.ListOpts{
 			LabelSelector: "autobackup",
@@ -74,11 +78,15 @@ func pruneBackups(server *hcloud.Server) {
 
 	backupCount := 0
 	for _, image := range images {
+
+		// Filter backups for current server only
 		if image.CreatedFrom.ID == server.ID {
 			backupCount++
+
 			if backupCount > keepAmount {
 				log.Printf("deleting backup image: %s", image.Description)
 				_, err := client.Image.Delete(context.Background(), image)
+
 				if err != nil {
 					log.Fatalf("error deleting backup image (%s): %s", image.Description, err)
 				}
@@ -90,7 +98,7 @@ func pruneBackups(server *hcloud.Server) {
 func waitForAction(action *hcloud.Action) {
 	_, errors := client.Action.WatchProgress(context.Background(), action)
 
-	err := <-errors
+	err := <-errors // This blocks until finished/errored
 	if err != nil {
 		log.Fatalf("action %s failed: %s\n", action.Command, err)
 	}
