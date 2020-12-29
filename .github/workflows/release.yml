@@ -18,6 +18,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        extra_files: LICENSE README.md
+        extra_files: LICENSE README.md .env
         sha256sum: false
         md5sum: false
