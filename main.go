@@ -30,10 +30,7 @@ func main() {
 	log.Printf("Looking for .env file in %s", exPath)
 
 	// Load config and initialize
-	err = godotenv.Load(".env", filepath.Join(exPath, ".env"))
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatalf("error loading .env file(s): %s", reflect.TypeOf(err))
-	}
+	tryLoadDotEnv(filepath.Join(exPath, ".env"), ".env")
 
 	keepAmount, err = strconv.Atoi(os.Getenv("KEEP_AMOUNT"))
 	if err != nil {
@@ -56,6 +53,16 @@ func main() {
 		// TODO: create backups async
 		createBackup(server)
 		pruneBackups(server)
+	}
+}
+
+//tryLoadDotEnv load dot env files but don't abort when one doesn't exist
+func tryLoadDotEnv(filenames ...string) {
+	for _, filename := range filenames {
+		err := godotenv.Load(filename)
+		if err != nil && !os.IsNotExist(err) {
+			log.Fatalf("error loading .env file: %s", reflect.TypeOf(err))
+		}
 	}
 }
 
