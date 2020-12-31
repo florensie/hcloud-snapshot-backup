@@ -7,6 +7,8 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"path/filepath"
+	"reflect"
 	"strconv"
 	"time"
 )
@@ -15,10 +17,17 @@ var client *hcloud.Client
 var keepAmount int
 
 func main() {
-	// Load config and initialize
-	err := godotenv.Load()
+	// Get executable dir
+	ex, err := os.Executable()
 	if err != nil {
-		log.Fatalf("error loading .env file: %s", err)
+		log.Fatalf("error getting executable path: %s", err)
+	}
+	exPath := filepath.Dir(ex)
+
+	// Load config and initialize
+	err = godotenv.Load(".env", filepath.Join(exPath, ".env"))
+	if err != nil && !os.IsNotExist(err) {
+		log.Fatalf("error loading .env file(s): %s", reflect.TypeOf(err))
 	}
 
 	keepAmount, err = strconv.Atoi(os.Getenv("KEEP_AMOUNT"))
