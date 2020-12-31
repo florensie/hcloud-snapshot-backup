@@ -22,7 +22,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("error getting executable path: %s", err)
 	}
-	exPath := filepath.Dir(ex)
+	exPath, err := filepath.EvalSymlinks(filepath.Dir(ex))
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Looking for .env file in %s", exPath)
 
 	// Load config and initialize
 	err = godotenv.Load(".env", filepath.Join(exPath, ".env"))
