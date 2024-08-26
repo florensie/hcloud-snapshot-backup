@@ -2,7 +2,7 @@ module hcloud-snapshot-backup
 
 go 1.21
 
-toolchain go1.22.6
+toolchain go1.23.0
 
 require (
 	github.com/hetznercloud/hcloud-go v1.59.1
